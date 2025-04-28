@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Records Portal</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <img src="Design.png" alt="IST Logo" class="logo-image">
+                <div class="logo-text">
+                    Institute of<br>
+                    <small>Software Technology</small>
+                </div>
+            </div>
+            <ul>
+                <li><a href="index.html" class="active">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="student-login.html">Student Login</a></li>
+                <li><a href="admin-login.html">Admin Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>Welcome to University Records Portal</h1>
+            <p>Easy access to your academic records and requests</p>
+            <div class="hero-buttons">
+                <a href="student-login.html" class="btn primary">Student Login</a>
+                <a href="student-register.html" class="btn secondary">New Student? Register</a>
+            </div>
+        </section>
+
+        <section class="features" id="services">
+            <h2>Our Services</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <i class="fas fa-clock"></i>
+                    <h3>Attendance Records</h3>
+                    <p>Request and track your attendance records</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <h3>Fee Structure</h3>
+                    <p>Access current fee structures</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-wallet"></i>
+                    <h3>Balance Inquiry</h3>
+                    <p>Check your fee balance</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="about" id="about">
+            <h2>About Us</h2>
+            <div class="about-content">
+                <p>The University Records Portal is your one-stop solution for managing academic records and requests. 
+                   We provide seamless access to various university services, making it easier for students to track 
+                   their academic journey.</p>
+            </div>
+        </section>
+        <div class="footer-bottom">
+            <p>&copy; 2025 University Records Tracker. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script type="module" src="firebase-app.js"></script>
+    <script type="module" src="firebase-auth.js"></script>
+    <script type="module">
+        import { initializeApp } from "./firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "./firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBr2sHC1c_Ll0v0y4boSVNhFz8kjQ9fgOY",
+            authDomain: "university-tracker00.firebaseapp.com",
+            projectId: "university-tracker00",
+            storageBucket: "university-tracker00.firebasestorage.app",
+            messagingSenderId: "130275131839",
+            appId: "1:130275131839:web:707cce82f1d0ddecbf610a"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Update navigation based on auth state
+        onAuthStateChanged(auth, (user) => {
+            const navList = document.querySelector('nav ul');
+            const heroButtons = document.querySelector('.hero-buttons');
+            
+            if (user) {
+                const userRole = localStorage.getItem('userRole');
+                if (userRole === 'student') {
+                    navList.innerHTML = `
+                        <li><a href="index.html" class="active">Home</a></li>
+                        <li><a href="#about">About</a></li>
+                        <li><a href="student-dashboard.html">Dashboard</a></li>
+                        <li><a href="#" id="logoutBtn">Logout</a></li>
+                    `;
+                    if (heroButtons) {
+                        heroButtons.innerHTML = `
+                            <a href="student-dashboard.html" class="btn primary">Go to Dashboard</a>
+                        `;
+                    }
+                }
+            }
+        });
+
+        document.addEventListener('click', async (e) => {
+            if (e.target.id === 'logoutBtn') {
+                e.preventDefault();
+                try {
+                    await signOut(auth);
+                    localStorage.removeItem('currentUser');
+                    localStorage.removeItem('userRole');
+                    window.location.reload();
+                } catch (error) {
+                    console.error('Error signing out:', error);
+                }
+            }
+        });
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</body>
+</html>

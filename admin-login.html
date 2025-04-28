@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Login</h1>
+        <form id="adminLoginForm">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit">Login</button>
+            <div id="errorMessage" style="color: red; margin-top: 10px;"></div>
+        </form>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBr2sHC1c_Ll0v0y4boSVNhFz8kjQ9fgOY",
+            authDomain: "university-tracker00.firebaseapp.com",
+            projectId: "university-tracker00",
+            storageBucket: "university-tracker00.firebasestorage.app",
+            messagingSenderId: "130275131839",
+            appId: "1:130275131839:web:707cce82f1d0ddecbf610a"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Admin email constant
+        const ADMIN_EMAIL = 'isaaccgriffin@gmail.com';
+
+        // Handle login form submission
+        document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+
+            try {
+                // Check if email is admin
+                if (email !== ADMIN_EMAIL) {
+                    throw new Error('Not authorized as admin');
+                }
+
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                
+                // Store admin info
+                localStorage.setItem('userRole', 'admin');
+                localStorage.setItem('currentUser', JSON.stringify({
+                    uid: userCredential.user.uid,
+                    email: userCredential.user.email,
+                    role: 'admin'
+                }));
+
+                // Redirect to admin dashboard
+                window.location.href = 'admin-dashboard.html';
+            } catch (error) {
+                console.error('Login error:', error);
+                errorMessage.textContent = error.message;
+            }
+        });
+    </script>
+</body>
+</html>

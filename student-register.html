@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Registration</title>
+  <link rel="stylesheet" href="main.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Student Registration</h1>
+    <form id="registerForm">
+      <div class="form-group">
+        <label for="studentId">Student ID Number:</label>
+        <input type="text" id="studentId" required />
+      </div>
+      <div class="form-group">
+        <label for="fullName">Full Name:</label>
+        <input type="text" id="fullName" required />
+      </div>
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" required />
+      </div>
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" required />
+      </div>
+      <div class="form-group">
+        <label for="course">Course:</label>
+        <input type="text" id="course" required />
+      </div>
+      <button type="submit">Register</button>
+      <div id="errorMessage" style="color: red;"></div>
+    </form>
+    <p>Already have an account? <a href="student-login.html">Login here</a></p>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBr2sHC1c_Ll0v0y4boSVNhFz8kjQ9fgOY",
+      authDomain: "university-tracker00.firebaseapp.com",
+      projectId: "university-tracker00",
+      storageBucket: "university-tracker00.firebasestorage.app",
+      messagingSenderId: "130275131839",
+      appId: "1:130275131839:web:707cce82f1d0ddecbf610a"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const registerForm = document.getElementById('registerForm');
+    const errorMessage = document.getElementById('errorMessage');
+
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = registerForm.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Registering...';
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const studentId = document.getElementById('studentId').value.trim();
+      const fullName = document.getElementById('fullName').value.trim();
+      const course = document.getElementById('course').value.trim();
+
+      try {
+        // Validate inputs
+        if (!email || !password || !studentId || !fullName || !course) {
+          throw new Error('All fields are required.');
+        }
+
+        // Create user with Firebase Auth
+        await createUserWithEmailAndPassword(auth, email, password);
+
+        // Prepare student data
+        const studentData = {
+          email,
+          studentId,
+          fullName,
+          course,
+          role: 'student'
+        };
+
+        // Send student data to backend
+        console.log('Sending student data to backend...');
+        const response = await fetch('http://localhost:5500/api/students', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(studentData)
+        });
+
+        if (!response.ok) {
+          const errorResponse = await response.json();
+          throw new Error(errorResponse.error || 'Failed to save student to backend');
+        }
+
+        console.log('Student data saved successfully.');
+
+        // Save to localStorage
+        localStorage.setItem('currentUser', JSON.stringify(studentData));
+        localStorage.setItem('userRole', 'student');
+
+        // Redirect to dashboard
+        console.log('Redirecting to student dashboard...');
+        window.location.href = 'student-dashboard.html';
+      } catch (error) {
+        console.error('❌ Error during registration:', error);
+        errorMessage.textContent = error.message || 'Registration failed';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Register';
+      }
+    });
+  </script>
+</body>
+</html>

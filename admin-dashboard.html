@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<!-- 
+    ADMIN DASHBOARD PAGE
+    Main interface for administrators to manage student requests and complaints
+    Key Features:
+    - View and filter student requests/complaints
+    - Approve/decline submissions with comments
+    - Responsive design for all devices
+-->
+<html lang="en">
+<head>
+    <!-- Basic Meta Tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Institute of Software Technology</title>
+    <!-- CSS Dependencies -->
+    <link rel="stylesheet" href="/main.css"> <!-- Main stylesheet -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Font Awesome icons -->
+</head>
+<body>
+    <!-- HEADER SECTION -->
+    <header>
+        <div class="header-top">
+            <!-- Institute Logo and Title -->
+            <div class="logo">
+                <img src="/Design.png" alt="Institute of Software Technology Logo" class="logo-image">
+                <div class="logo-text">
+                    Institute of<br>
+                    <small>Software Technology</small>
+                </div>
+            </div>
+            <h1>Admin Dashboard</h1> <!-- Page title -->
+        </div>
+        <!-- Navigation Controls -->
+        <nav>
+            <button id="logoutBtn" class="nav-btn logout">Logout</button> <!-- Logout button -->
+        </nav>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main>
+        <!-- VIEW TOGGLE BUTTONS -->
+        <div class="view-buttons">
+            <button id="viewRequestsBtn" class="view-btn active">View Requests</button> <!-- Requests view button -->
+            <button id="viewComplaintsBtn" class="view-btn">View Complaints</button> <!-- Complaints view button -->
+        </div>
+
+        <!-- REQUESTS SECTION -->
+        <section id="requestsSection" class="content-section">
+            <h2>Student Requests</h2> <!-- Section title -->
+            <!-- Request Filter Controls -->
+            <div class="filter-container">
+                <label for="requestFilter">Filter by:</label>
+                <select id="statusFilter">
+                    <option value="all">All Requests</option> <!-- Show all requests -->
+                    <option value="pending" selected>Pending</option> <!-- Default: show pending -->
+                    <option value="approved">Approved</option> <!-- Approved requests -->
+                    <option value="declined">Declined</option> <!-- Declined requests -->
+                </select>
+            </div>
+            <!-- Dynamic Request List Container -->
+            <div id="requestsContainer" class="requests-list">
+                <!-- Requests will be dynamically populated by admin.js -->
+            </div>
+        </section>
+
+        <!-- COMPLAINTS SECTION (Hidden by default) -->
+        <section id="complaintsSection" class="content-section" style="display: none;">
+            <h2>Student Complaints</h2> <!-- Section title -->
+            <!-- Complaint Filter Controls -->
+            <div class="filter-container">
+                <label for="complaintFilter">Filter by:</label>
+                <select id="complaintFilter">
+                    <option value="all">All Complaints</option> <!-- Show all complaints -->
+                    <option value="pending" selected>Pending</option> <!-- Default: show pending -->
+                    <option value="approved">Approved</option> <!-- Approved complaints -->
+                    <option value="declined">Declined</option> <!-- Declined complaints -->
+                </select>
+            </div>
+            <!-- Dynamic Complaint List Container -->
+            <div id="complaintsContainer" class="complaints-list">
+                <!-- Complaints will be dynamically populated by admin.js -->
+            </div>
+        </section>
+    </main>
+
+    <!-- RESPONSE MODAL (Hidden until triggered) -->
+    <div id="responseModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span> <!-- Close button -->
+            <h3 id="modalTitle">Respond to Request</h3> <!-- Modal title (dynamic) -->
+            <!-- Response Form -->
+            <form id="responseForm">
+                <!-- Hidden fields for request metadata -->
+                <input type="hidden" id="responseId"> <!-- Stores request/complaint ID -->
+                <input type="hidden" id="responseType"> <!-- Stores type (request/complaint) -->
+                <!-- Response text area -->
+                <textarea id="responseComment" placeholder="Enter your comment..." required></textarea>
+                <!-- Submit button -->
+                <button type="submit" id="submitResponse">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Module -->
+    <script type="module" src="/admin.js"></script> <!-- Main admin dashboard functionality -->
+</body>
+</html>

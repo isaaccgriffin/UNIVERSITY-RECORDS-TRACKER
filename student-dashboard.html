@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="main.css">
+    <title>Student Dashboard</title>
+</head>
+<body>
+    <header>
+        <div class="header-top">
+            <div class="logo">
+                <img src="Design.png" alt="IST Logo" class="logo-image">
+                <div class="logo-text">
+                    Institute of<br>
+                    <small>Software Technology</small>
+                </div>
+            </div>
+            <h1>Student Dashboard</h1>
+        </div>
+        <nav>
+            <button id="newRequestBtn">New Request</button>
+            <button id="viewRequestsBtn">View Requests</button>
+            <button id="submitComplaintBtn">Submit Complaint</button> <!-- Add this button -->
+            <button id="viewComplaintsBtn">View Complaints</button>
+            <button id="logoutBtn">Logout</button>
+        </nav>
+    </header>
+
+    <main id="dashboardContent">
+        <div id="loadingMessage">Loading...</div>
+
+        <div class="logo">
+            <img src="../assets/images/Design.png" alt="IST Logo" class="logo-image">
+            <div class="logo-text">
+                Institute of<br>
+                <small>Software Technology</small>
+            </div>
+        </div>
+
+        <!-- New Request Form -->
+        <section id="newRequestForm" class="form-container" style="display: none;">
+            <h2>Submit New Request</h2>
+            <form id="requestForm" enctype="multipart/form-data">
+                <input type="hidden" id="studentId">
+                <input type="hidden" id="studentName">
+                <input type="hidden" id="studentEmail">
+                
+                <div class="form-group">
+                    <label for="requestType">Request Type:</label>
+                    <select id="requestType" required>
+                        <option value="">Select Request Type</option>
+                        <option value="attendance">Attendance Record</option>
+                        <option value="fee">Fee Structure</option>
+                        <option value="balance">Fee Balance</option>
+                        <option value="transcript">Academic Transcript</option>
+                    </select>
+                </div>
+
+                <div class="form-group academic-period">
+                    <label for="academicYear">Academic Year:</label>
+                    <select id="academicYear" required>
+                        <option value="">Select Year</option>
+                        <option value="Y1">Year 1</option>
+                        <option value="Y2">Year 2</option>
+                        <option value="Y3">Year 3</option>
+                        <option value="Y4">Year 4</option>
+                    </select>
+                </div>
+
+                <div class="form-group academic-period">
+                    <label for="semester">Semester:</label>
+                    <select id="semester" required>
+                        <option value="">Select Semester</option>
+                        <option value="S1">Semester 1</option>
+                        <option value="S2">Semester 2</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="supportingDocs">Supporting Documents (if any):</label>
+                    <input type="file" id="supportingDocs" multiple>
+                    <small>You can select multiple files</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="comments">Additional Comments:</label>
+                    <textarea id="comments" rows="4"></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn">Submit Request</button>
+            </form>
+        </section>
+
+        <!-- Submit Complaint Section -->
+        <section id="submitComplaint" class="dashboard-section" style="display: none;">
+            <h2>Submit a Complaint</h2>
+            <form id="complaintForm">
+                <div class="form-group">
+                    <label for="complaintType">Complaint Type:</label>
+                    <select id="complaintType" required>
+                        <option value="">Select Type</option>
+                        <option value="academic">Academic</option>
+                        <option value="technical">Technical</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="complaintDetails">Details:</label>
+                    <textarea id="complaintDetails" rows="4" required></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Submit Complaint</button>
+            </form>
+        </section>
+
+        <!-- View Complaints Section -->
+        <section id="viewComplaints" class="dashboard-section" style="display: none;">
+            <h2>Track Your Complaints</h2>
+            <div id="complaintsList">
+                <!-- Complaints will be dynamically loaded here -->
+            </div>
+        </section>
+
+        <!-- Requests List -->
+        <section id="viewRequests" class="dashboard-section" style="display: none;">
+            <h2>My Requests</h2>
+            <div class="requests-container">
+                <!-- Requests Filter -->
+                <div class="filter-section">
+                    <select id="statusFilter">
+                        <option value="all">All Requests</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="declined">Declined</option>
+                    </select>
+                </div>
+
+                <!-- Requests List -->
+                <div id="requestsList" class="requests-grid">
+                    <!-- Request cards will be dynamically inserted here -->
+                    <div class="request-card">
+                        <div class="request-header">
+                            <h3>${request.requestType}</h3>
+                            <span class="status-badge status-${request.status}">${request.status}</span>
+                        </div>
+                        
+                        <div class="request-details">
+                            <p><strong>Academic Year:</strong> ${request.academicYear}</p>
+                            <p><strong>Semester:</strong> ${request.semester}</p>
+                            <p><strong>Submitted:</strong> ${new Date(request.createdAt).toLocaleDateString()}</p>
+                            ${request.comments ? `<p><strong>Comments:</strong> ${request.comments}</p>` : ''}
+                        </div>
+
+                        <!-- Student's uploaded files -->
+                        <div class="files-section">
+                            <h4>Your Uploaded Documents</h4>
+                            <div class="files-list">
+                                ${request.files ? request.files.map(file => `
+                                    <div class="file-item">
+                                        <span class="file-name">${file.name}</span>
+                                        <a href="${file.url}" class="download-btn" download>
+                                            <i class="fas fa-download"></i> Download
+                                        </a>
+                                    </div>
+                                `).join('') : '<p>No files uploaded</p>'}
+                            </div>
+                        </div>
+
+                        <!-- Admin's response section -->
+                        ${request.status === 'approved' ? `
+                            <div class="admin-response-section">
+                                <h4>Admin Response</h4>
+                                <p class="response-message">${request.responseMessage || ''}</p>
+                                
+                                <!-- Admin's uploaded files -->
+                                ${request.responseFiles && request.responseFiles.length > 0 ? `
+                                    <div class="files-section admin-files">
+                                        <h4>Admin Documents</h4>
+                                        <div class="files-list">
+                                            ${request.responseFiles.map(file => `
+                                                <div class="file-item">
+                                                    <span class="file-name">${file.name}</span>
+                                                    <a href="${file.url}" class="download-btn" download>
+                                                        <i class="fas fa-download"></i> Download
+                                                    </a>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        ` : ''}
+
+                        <!-- Request Timeline -->
+                        <div class="request-timeline">
+                            <h4>Request Timeline</h4>
+                            ${request.timeline ? request.timeline.map(item => `
+                                <div class="timeline-item">
+                                    <span class="timeline-date">${new Date(item.date).toLocaleDateString()}</span>
+                                    <span class="status-badge status-${item.status}">${item.status}</span>
+                                    <p>${item.message}</p>
+                                </div>
+                            `).join('') : ''}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBr2sHC1c_Ll0v0y4boSVNhFz8kjQ9fgOY",
+            authDomain: "university-tracker00.firebaseapp.com",
+            projectId: "university-tracker00",
+            storageBucket: "university-tracker00.firebasestorage.app",
+            messagingSenderId: "130275131839",
+            appId: "1:130275131839:web:707cce82f1d0ddecbf610a"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Check authentication state
+        onAuthStateChanged(auth, (user) => {
+            const loadingMessage = document.getElementById('loadingMessage');
+            
+            if (user) {
+                loadingMessage.style.display = 'none';
+                document.getElementById('dashboardContent').style.display = 'block';
+            } else {
+                window.location.href = 'student-login.html';
+            }
+        });
+
+        // Handle logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('userRole');
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Error signing out:', error);
+            }
+        });
+
+        // Load student details
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (currentUser) {
+                document.getElementById('studentId').value = currentUser.studentId;
+                document.getElementById('studentName').value = currentUser.fullName;
+                document.getElementById('studentEmail').value = currentUser.email;
+            }
+        });
+
+        // Send student details to the server
+        const sendStudentDetails = async (studentEmail, studentId, studentName, studentCourse) => {
+            try {
+                const response = await fetch('http://localhost:5500/api/students', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: studentEmail,
+                        studentId: studentId,
+                        fullName: studentName,
+                        course: studentCourse
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text(); // Read the raw response text
+                    throw new Error(`Server error: ${response.status} ${response.statusText} - ${errorText}`);
+                }
+
+                const data = await response.json();
+                console.log('Student registered successfully:', data);
+            } catch (error) {
+                console.error('❌ Error during registration:', error);
+                alert(error.message || 'Registration failed. Please try again.');
+            }
+        };
+
+        async function fetchStudentRequests() {
+            try {
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                if (!currentUser) {
+                    console.error('No current user found.');
+                    return;
+                }
+
+                const res = await fetch(`http://localhost:5500/api/requests/${currentUser.studentId}`);
+                const requests = await res.json();
+
+                const requestsList = document.getElementById('studentRequestsList');
+                requestsList.innerHTML = ''; // Clear existing content
+
+                if (requests.length === 0) {
+                    requestsList.innerHTML = '<p>No requests found.</p>';
+                    return;
+                }
+
+                requests.forEach(request => {
+                    const requestDiv = document.createElement('div');
+                    requestDiv.classList.add('request-item');
+                    requestDiv.innerHTML = `
+                        <p><strong>ID:</strong> ${request.id}</p>
+                        <p><strong>Request Type:</strong> ${request.requestType}</p>
+                        <p><strong>Status:</strong> ${request.status}</p>
+                        <p><strong>Admin Response:</strong> ${request.adminResponse || 'No response yet'}</p>
+                        <p><strong>Response Date:</strong> ${request.responseDate ? new Date(request.responseDate).toLocaleString() : 'N/A'}</p>
+                        <hr>
+                    `;
+                    requestsList.appendChild(requestDiv);
+                });
+            } catch (error) {
+                console.error('❌ Failed to fetch student requests:', error);
+            }
+        }
+    </script>
+    <script type="module" src="student.js"></script>
+</body>
+</html>
